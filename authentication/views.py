@@ -19,32 +19,14 @@ class RegisterView(APIView):
     def post(self, request):
         serializer = UserRegistrationSerializer(data=request.data)
         if serializer.is_valid():
-            validated_data = serializer.validated_data
-            
-            # Create user object in the view
-            try:
-                user = User.objects.create_user(
-                    email=validated_data['email'],
-                    username=validated_data['username'],
-                    first_name=validated_data['first_name'],
-                    last_name=validated_data['last_name'],
-                    password=validated_data['password']
-                )
-                
-                refresh = RefreshToken.for_user(user)
-                return Response({
-                    'user': UserSerializer(user).data,
-                    'refresh': str(refresh),
-                    'access': str(refresh.access_token),
-                    'message': 'User registered successfully'
-                }, status=status.HTTP_201_CREATED)
-                
-            except Exception as e:
-                return Response({
-                    'error': 'Failed to create user',
-                    'details': str(e)
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                
+            user = serializer.save()
+            refresh = RefreshToken.for_user(user)
+            return Response({
+                'user': UserSerializer(user).data,
+                'refresh': str(refresh),
+                'access': str(refresh.access_token),
+                'message': 'User registered successfully'
+            }, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
