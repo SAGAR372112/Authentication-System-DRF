@@ -1,10 +1,8 @@
 from rest_framework import status, permissions
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
-from rest_framework_simplejwt.views import TokenObtainPairView
-from django.contrib.auth import authenticate
 from .models import User
 from .serializers import (
     UserRegistrationSerializer, 
@@ -30,7 +28,6 @@ class RegisterView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LoginView(APIView):
-    permission_classes = [permissions.AllowAny]
 
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
@@ -46,6 +43,7 @@ class LoginView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class LogoutView(APIView):
+    
     def post(self, request):
         try:
             refresh_token = request.data["refresh"]
@@ -56,6 +54,7 @@ class LogoutView(APIView):
             return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserProfileView(APIView):
+    
     def get(self, request):
         serializer = UserSerializer(request.user)
         return Response(serializer.data)
@@ -68,6 +67,7 @@ class UserProfileView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ChangePasswordView(APIView):
+    
     def post(self, request):
         serializer = ChangePasswordSerializer(data=request.data)
         if serializer.is_valid():
